@@ -13,6 +13,9 @@ local fontCreated = false
 local defconPopupVisible = false
 local defconPopupStartTime = 0
 local defconPopupDuration = 10 -- The duration of the popup in seconds
+local defconPopupDelay = 5     -- Delay before the popup starts to fade in seconds
+local defconPopupAlpha = 255   -- Initial alpha value (fully visible)
+local defconPopupAlphaTranslucent = 200
 
 local function CreateDefconFont()
    if not fontCreated then
@@ -94,29 +97,46 @@ local function DrawDefconUI()
 end
 
 local function DrawDefconPopup()
-   if defconPopupVisible then
+   if defconPopupVisible and defconPopupAlpha > 0 then
+      local currentTime = CurTime()
+
+      -- Check if the delay has passed before fading
+      if currentTime - defconPopupStartTime > defconPopupDelay then
+         -- Gradually decrease the alpha value to fade out
+         defconPopupAlpha = math.max(0, defconPopupAlpha - 2)                       -- Adjust the step as needed
+         defconPopupAlphaTranslucent = math.max(0, defconPopupAlphaTranslucent - 2) -- Adjust the step as needed
+      end
+
+      -- Restoring initial values when the popup is no longer visible
+      if defconPopupAlpha < 1 then
+         defconPopupVisible = false
+         defconPopupStartTime = currentTime
+         defconPopupAlpha = 255
+         defconPopupAlphaTranslucent = 200
+      end
+
       surface.SetFont("defconFontLarge")
 
       local defconPopupTitle = "- D E F C O N -"
       local defconPopupLevel = "Level " .. defconLevel
       local defconPopupMessage = "null"
 
-      local defconPopupColor = Color(255, 255, 255, 255)
+      local defconPopupColor = Color(255, 255, 255, defconPopupAlpha)
       if defconLevel == 1 then
          defconPopupMessage = "Evacuate, Evacuate, Evacuate!"
-         defconPopupColor = Color(255, 255, 255, 255)
+         defconPopupColor = Color(255, 255, 255, defconPopupAlpha)
       elseif defconLevel == 2 then
          defconPopupMessage = "Lockdown Essential Areas!"
-         defconPopupColor = Color(255, 0, 0, 255)
+         defconPopupColor = Color(255, 0, 0, defconPopupAlpha)
       elseif defconLevel == 3 then
          defconPopupMessage = "Man Battlestations!"
-         defconPopupColor = Color(255, 255, 0, 255)
+         defconPopupColor = Color(255, 255, 0, defconPopupAlpha)
       elseif defconLevel == 4 then
          defconPopupMessage = "Be on Alert!"
-         defconPopupColor = Color(0, 128, 0, 255)
+         defconPopupColor = Color(0, 128, 0, defconPopupAlpha)
       elseif defconLevel == 5 then
          defconPopupMessage = "Normal Duties"
-         defconPopupColor = Color(0, 0, 255, 255)
+         defconPopupColor = Color(0, 0, 255, defconPopupAlpha)
       end
 
       local ScrW, ScrH = ScrW(), ScrH()
@@ -128,7 +148,7 @@ local function DrawDefconPopup()
       local posY = ScrH / 8
 
       -- Draw the background box
-      surface.SetDrawColor(0, 0, 0, 200)
+      surface.SetDrawColor(0, 0, 0, defconPopupAlphaTranslucent)
       surface.DrawRect(posX, posY, popupWidth, popupHeight)
 
       -- Draw the border of the box
@@ -142,7 +162,7 @@ local function DrawDefconPopup()
       local textY = posY + 10
 
       -- Draw the title, centered horizontally
-      surface.SetTextColor(255, 255, 255, 255)
+      surface.SetTextColor(255, 255, 255, defconPopupAlpha)
       local textWidth, textHeight = surface.GetTextSize(defconPopupTitle)
       local textX = centerTextX - textWidth / 2
       surface.SetTextPos(textX, textY)
@@ -162,7 +182,7 @@ local function DrawDefconPopup()
       textY = textY + textHeight + 5
 
       -- Draw the message, centered horizontally
-      surface.SetTextColor(255, 255, 255, 255)
+      surface.SetTextColor(255, 255, 255, defconPopupAlpha)
       textWidth, textHeight = surface.GetTextSize(defconPopupMessage)
       textX = centerTextX - textWidth / 2
       surface.SetTextPos(textX, textY)
