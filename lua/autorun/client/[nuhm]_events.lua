@@ -57,7 +57,7 @@ local function DrawDefconUI()
       local posX = ScrW - 15 - boxW
       local posY = 15
 
-      surface.SetDrawColor(0, 0, 0, 100) -- Set color (R, G, B, Alpha)
+      surface.SetDrawColor(0, 0, 0, 200) -- Set color (R, G, B, Alpha)
       surface.DrawRect(posX, posY, boxW, boxH)
 
       local defconStaticLevelColor = Color(255, 255, 255, 255)
@@ -208,6 +208,13 @@ local function ToggleDefconUI()
 end
 
 concommand.Add("toggledefconui", ToggleDefconUI)
+
+local function ClearDefcon()
+   defconLevel = 0
+   defconUIVisible = false
+end
+
+concommand.Add("cleardefcon", ClearDefcon)
 
 -- Loop through the DEFCON levels and register chat commands
 for _, defcon in pairs(defconLevels) do
